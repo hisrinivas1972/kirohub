@@ -58,12 +58,17 @@ Build tools that save time, reduce friction, or simplify everyday tasks - for de
 If it boosts your flow, it fits here. Examples: dev workflow automations, resume helpers, content tools, calendar organizers.
 """)
 
-    tab1, tab2, tab3, tab4 = st.tabs([
+# Sidebar menu
+st.sidebar.title("📂 Tools")
+section = st.sidebar.radio(
+    "Select a tool:",
+    [
         "🛠️ Resume Helper",
         "⚙️ Dev Automation",
         "📝 Content Rewriter",
         "📅 Calendar Organizer"
-    ])
+    ]
+)
 
     model = genai.GenerativeModel("gemini-1.5-flash")
 
