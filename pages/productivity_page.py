@@ -12,6 +12,7 @@ from utils.dev_automation import generate_commit_and_issue
 from utils.content_tools import rewrite_content
 from utils.calendar_helper import summarize_schedule
 
+
 def extract_text_from_pdf(uploaded_file):
     try:
         reader = PdfReader(uploaded_file)
@@ -23,6 +24,7 @@ def extract_text_from_pdf(uploaded_file):
         st.error(f"Error reading PDF: {e}")
         return ""
 
+
 def extract_text_from_docx(uploaded_file):
     try:
         doc = docx.Document(uploaded_file)
@@ -31,6 +33,7 @@ def extract_text_from_docx(uploaded_file):
     except Exception as e:
         st.error(f"Error reading DOCX: {e}")
         return ""
+
 
 def extract_text(uploaded_file):
     if uploaded_file is None:
@@ -50,56 +53,52 @@ def extract_text(uploaded_file):
         st.warning("Unsupported file type. Please upload PDF, DOCX, or TXT.")
         return ""
 
-def run_productivity():
-    st.title("📄 Productivity & Workflow Tools")
 
+def run_productivity():
+    st.set_page_config(page_title="KiroHub", layout="wide", initial_sidebar_state="expanded")
+    st.title("📄 Productivity & Workflow Tools")
     st.markdown("""
 Build tools that save time, reduce friction, or simplify everyday tasks - for developers or anyone else.
 If it boosts your flow, it fits here. Examples: dev workflow automations, resume helpers, content tools, calendar organizers.
 """)
 
-# Sidebar menu
-st.sidebar.title("📂 Tools")
-section = st.sidebar.radio(
-    "Select a tool:",
-    [
-        "🛠️ Resume Helper",
-        "⚙️ Dev Automation",
-        "📝 Content Rewriter",
-        "📅 Calendar Organizer"
-    ]
-)
+    # Sidebar Navigation
+    st.sidebar.title("📂 Select a Tool")
+    section = st.sidebar.radio(
+        "Navigate",
+        [
+            "🛠️ Resume Helper",
+            "⚙️ Dev Automation",
+            "📝 Content Rewriter",
+            "📅 Calendar Organizer"
+        ]
+    )
 
     model = genai.GenerativeModel("gemini-1.5-flash")
 
-    # Resume Helper Tab
-    with tab1:
+    if section == "🛠️ Resume Helper":
         st.header("🛠️ Resume Helper with AI Suggestions")
-        subtab1, subtab2, subtab3 = st.tabs([
+        subtab = st.radio("Choose an option", [
             "Resume + Job Description Suggestions",
             "Upload Resume for Grammar & Style Fix",
             "Company Desc + Resume Match Check"
         ])
 
-        # 1. Resume + Job Description Suggestions
-        with subtab1:
-            st.markdown("""
-Example:
+        if subtab == "Resume + Job Description Suggestions":
+            st.markdown("""Example:
 
-Resume:
-Experienced software developer with 5 years in Python and AI.
+**Resume**: Experienced software developer with 5 years in Python and AI.
 
-Job Description:
-Looking for a Python developer familiar with AI and ML techniques.
+**Job Description**: Looking for a Python developer familiar with AI and ML techniques.
 """)
-            uploaded_resume = st.file_uploader("Upload your resume (PDF, DOCX, TXT)", type=["pdf", "docx", "txt"], key="upload_res1")
+            uploaded_resume = st.file_uploader("Upload your resume (PDF, DOCX, TXT)", type=["pdf", "docx", "txt"])
             if uploaded_resume:
                 resume_text = extract_text(uploaded_resume)
             else:
-                resume_text = st.text_area("Or paste your resume here:", height=180, key="res1")
+                resume_text = st.text_area("Or paste your resume here:", height=180)
 
-            job_desc = st.text_area("Paste the job description here:", height=180, key="job1")
-            if st.button("Get Suggestions", key="btn1"):
+            job_desc = st.text_area("Paste the job description here:", height=180)
+            if st.button("Get Suggestions"):
                 if not resume_text.strip() or not job_desc.strip():
                     st.warning("Both fields are required.")
                 else:
@@ -109,16 +108,15 @@ Looking for a Python developer familiar with AI and ML techniques.
                     st.subheader("💡 Suggestions:")
                     st.write(response.text)
 
-        # 2. Upload Resume for Grammar & Style Fix
-        with subtab2:
+        elif subtab == "Upload Resume for Grammar & Style Fix":
             st.markdown("Upload your resume (PDF, DOCX, TXT) or paste text to get grammar and style fixes.")
-            uploaded_resume2 = st.file_uploader("Upload your resume here:", type=["pdf", "docx", "txt"], key="upload_res2")
+            uploaded_resume2 = st.file_uploader("Upload your resume here:", type=["pdf", "docx", "txt"])
             if uploaded_resume2:
                 resume_text2 = extract_text(uploaded_resume2)
             else:
-                resume_text2 = st.text_area("Or paste your resume text here:", height=360, key="res2")
+                resume_text2 = st.text_area("Or paste your resume text here:", height=360)
 
-            if st.button("Fix Grammar & Style", key="btn2"):
+            if st.button("Fix Grammar & Style"):
                 if not resume_text2.strip():
                     st.warning("Please provide your resume text.")
                 else:
@@ -128,18 +126,17 @@ Looking for a Python developer familiar with AI and ML techniques.
                     st.subheader("📝 Fixed Resume:")
                     st.write(response.text)
 
-        # 3. Company Description + Resume Match Check
-        with subtab3:
+        elif subtab == "Company Desc + Resume Match Check":
             st.markdown("Check if your resume matches the company description / job requirements.")
-            company_desc = st.text_area("Paste company/job description here:", height=180, key="comp5")
+            company_desc = st.text_area("Paste company/job description here:", height=180)
 
-            uploaded_resume3 = st.file_uploader("Upload your resume here:", type=["pdf", "docx", "txt"], key="upload_res5")
+            uploaded_resume3 = st.file_uploader("Upload your resume here:", type=["pdf", "docx", "txt"])
             if uploaded_resume3:
                 resume_text3 = extract_text(uploaded_resume3)
             else:
-                resume_text3 = st.text_area("Or paste your resume here:", height=180, key="res5")
+                resume_text3 = st.text_area("Or paste your resume here:", height=180)
 
-            if st.button("Check Match", key="btn5"):
+            if st.button("Check Match"):
                 if not company_desc.strip() or not resume_text3.strip():
                     st.warning("Both fields are required.")
                 else:
@@ -149,88 +146,62 @@ Looking for a Python developer familiar with AI and ML techniques.
                     st.subheader("✅ Match Analysis:")
                     st.write(response.text)
 
-    # Dev Automation Tab
-    with tab2:
+    elif section == "⚙️ Dev Automation":
         st.header("⚙️ Generate Dev Commit & GitHub Issue")
         st.markdown("""
-**Prompt format examples**
+**Prompt format examples**:
 
-- *Simple, keyword-based prompt:*
-  Generate a conventional commit message and GitHub issue for automating Python tests on AWS using GitHub Actions for CI/CD.
-
-- *More detailed prompt:*
-  Write a conventional commit message and a detailed GitHub issue for setting up a CI/CD pipeline using GitHub Actions to run automated Python tests on AWS infrastructure.
-
-- *Step-wise prompt for detailed issue:*
-  Generate a conventional commit message with scope and a GitHub issue including description, checklist, and labels for automating Python testing with GitHub Actions and AWS.
+- *Simple:* Generate a commit message and issue for automating Python tests on AWS using GitHub Actions.
+- *Detailed:* Set up CI/CD with GitHub Actions to run automated tests on AWS.
 """)
-        task = st.text_area("Describe your dev task or bug:", key="dev_task")
+        task = st.text_area("Describe your dev task or bug:")
         if st.button("Generate Dev Artifacts"):
             if task.strip():
-                try:
-                    prompt = generate_commit_and_issue(task)
-                    with st.spinner("Working..."):
-                        response = model.generate_content(prompt)
-                    st.subheader("🔧 Output:")
-                    st.write(response.text)
-                except Exception as e:
-                    st.error(f"Error: {e}")
+                prompt = generate_commit_and_issue(task)
+                with st.spinner("Working..."):
+                    response = model.generate_content(prompt)
+                st.subheader("🔧 Output:")
+                st.write(response.text)
             else:
                 st.warning("Please enter a task description.")
 
-    # Content Rewriter Tab
-    with tab3:
+    elif section == "📝 Content Rewriter":
         st.header("📝 Rewrite Content with AI")
-        st.markdown("""
-Example:
+        st.markdown("""Example:
 
-Paste an email or message and choose a tone (Formal, Friendly, Persuasive).
-
-Hi team,
-
-please find the attached report for Q2.
-
-thanks,
+Hi team,  
+please find the attached report for Q2.  
+thanks,  
 John
 """)
-        content = st.text_area("Paste your content (email, text, etc.):", key="content_text")
-        tone = st.selectbox("Select tone", ["Formal", "Friendly", "Persuasive"], key="tone_select")
+        content = st.text_area("Paste your content (email, text, etc.):")
+        tone = st.selectbox("Select tone", ["Formal", "Friendly", "Persuasive"])
         if st.button("Rewrite Content"):
             if content.strip():
-                try:
-                    prompt = rewrite_content(content, tone)
-                    with st.spinner("Rewriting..."):
-                        response = model.generate_content(prompt)
-                    st.subheader("✏️ Rewritten Content:")
-                    st.write(response.text)
-                except Exception as e:
-                    st.error(f"Error: {e}")
+                prompt = rewrite_content(content, tone)
+                with st.spinner("Rewriting..."):
+                    response = model.generate_content(prompt)
+                st.subheader("✏️ Rewritten Content:")
+                st.write(response.text)
             else:
                 st.warning("Please paste some content.")
 
-    # Calendar Organizer Tab
-    with tab4:
+    elif section == "📅 Calendar Organizer":
         st.header("📅 Smart Schedule Organizer")
-        st.markdown("""
-Example:
-
-Paste your tasks or schedule like:
+        st.markdown("""Example:
 
 Submit assignment by 25th July  
 Doctor appointment on Saturday  
 Buy groceries  
 23rd July 2025 Job in Oracle  
 """)
-        schedule = st.text_area("Paste your schedule, tasks, or to-dos:", key="schedule_input")
+        schedule = st.text_area("Paste your schedule, tasks, or to-dos:")
         if st.button("Summarize & Prioritize"):
             if schedule.strip():
-                try:
-                    prompt = summarize_schedule(schedule)
-                    with st.spinner("Organizing..."):
-                        response = model.generate_content(prompt)
-                    st.subheader("✅ Prioritized Tasks:")
-                    st.write(response.text)
-                except Exception as e:
-                    st.error(f"Error: {e}")
+                prompt = summarize_schedule(schedule)
+                with st.spinner("Organizing..."):
+                    response = model.generate_content(prompt)
+                st.subheader("✅ Prioritized Tasks:")
+                st.write(response.text)
             else:
                 st.warning("Please provide your schedule or task list.")
