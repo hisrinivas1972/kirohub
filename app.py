@@ -18,7 +18,7 @@ from pages.productivity_page import run_productivity
 
 # ---------- Login UI ----------
 def login():
-    st.title("🔐 Login")
+    st.title("🔐 Login with your Google API Key")
 
     password = st.text_input("Enter password", type="password")
 
