@@ -25,7 +25,8 @@ def login():
     if st.button("Login"):
         if password == GOOGLE_API_KEY:
             st.session_state["logged_in"] = True
-            st.success("✅ Logged in successfully!")
+            st.success("✅ Logged in successfully! Select 'App' from the sidebar to continue.")
+
         else:
             st.error("❌ Wrong password")
 
